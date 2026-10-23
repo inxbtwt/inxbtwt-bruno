@@ -1,0 +1,33 @@
+meta {
+  name: Buscar foto da capa
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/users/{{userId}}/photo?url={{coverUrl}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: image/png, application/json
+}
+
+script:pre-request {
+  if (!bru.getVar("userId") || !bru.getVar("coverUrl")) {
+    throw new Error("Informe userId e execute Consultar URLs das fotos. Se coverUrl estiver vazia, envie uma capa em Enviar capa do usuário primeiro.");
+  }
+}
+
+tests {
+  test("Busca retorna a imagem como binário", function () {
+    expect(res.getStatus()).to.equal(200);
+    expect(res.getHeader("content-type")).to.include("image/png");
+    expect(Number(res.getHeader("content-length"))).to.be.greaterThan(0);
+  });
+}
+
+docs {
+  Busca a imagem pela URL salva para este usuário. A resposta de sucesso é a imagem binária, sem ApiResponse.
+}

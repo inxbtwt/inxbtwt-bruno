@@ -1,0 +1,57 @@
+meta {
+  name: Consultar URLs das fotos
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/users/{{userId}}/photos
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  if (!bru.getVar("userId")) {
+    throw new Error("Informe userId ou execute Criar usuário primeiro.");
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const urls = res.getBody().data;
+    if (urls.profileUrl) {
+      bru.setVar("photoUrl", urls.profileUrl);
+    } else {
+      bru.deleteVar("photoUrl");
+    }
+    if (urls.coverUrl) {
+      bru.setVar("coverUrl", urls.coverUrl);
+    } else {
+      bru.deleteVar("coverUrl");
+    }
+  }
+}
+
+tests {
+  test("Consulta retorna as URLs atuais de perfil e capa", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.status).to.equal("OK");
+    expect(body.data.userId).to.equal(bru.getVar("userId"));
+    if (body.data.profileUrl != null) {
+      expect(body.data.profileUrl).to.be.a("string").and.not.empty;
+    }
+    if (body.data.coverUrl != null) {
+      expect(body.data.coverUrl).to.be.a("string").and.not.empty;
+    }
+  });
+}
+
+docs {
+  Retorna as URLs atuais de perfil e capa em ApiResponse. Perfil e capa podem ser null antes dos uploads.
+  Precisa apenas de userId. Preenche photoUrl e coverUrl a partir da resposta; limpa URLs ausentes para não reutilizar fotos de outro usuário.
+}

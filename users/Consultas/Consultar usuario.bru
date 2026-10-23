@@ -1,39 +1,22 @@
 meta {
-  name: Atualizar usuário (PUT)
+  name: Consultar usuário
   type: http
-  seq: 4
+  seq: 1
 }
 
-put {
+get {
   url: {{baseUrl}}/users/{{userId}}
-  body: json
+  body: none
   auth: none
 }
 
 headers {
   Accept: application/json
-  Content-Type: application/json
-}
-
-body:json {
-  {
-    "name": "Maria Atualizada",
-    "photoUrl": "http://localhost:8333/inxbtwt-files/avatar.png",
-    "email": "{{testEmail}}",
-    "phone": "11888888888",
-    "password": "SenhaTeste123"
-  }
 }
 
 script:pre-request {
   if (!bru.getVar("userId")) {
     throw new Error("Execute primeiro Criar usuário para preencher userId.");
-  }
-}
-
-script:post-response {
-  if (res.getStatus() === 200) {
-    bru.setVar("lastUser", JSON.stringify(res.getBody().data));
   }
 }
 
@@ -49,9 +32,12 @@ tests {
   });
   test("Dados retornados correspondem ao fluxo", function () {
     const body = res.getBody();
-    expect(body.data.userId).to.equal(bru.getVar("userId"));
-    expect(body.data.name).to.equal("Maria Atualizada");
-    expect(body.data.email).to.equal(bru.getVar("testEmail"));
-    expect(body.data.phone).to.equal("11888888888");
+    const expected = JSON.parse(bru.getVar("lastUser"));
+    for (const field of ["userId", "name", "email", "phone"]) {
+      expect(body.data[field]).to.equal(expected[field]);
+    }
+    for (const field of ["createdAt", "updatedAt"]) {
+      expect(Date.parse(body.data[field])).to.equal(Date.parse(expected[field]));
+    }
   });
 }

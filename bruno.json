@@ -2,5 +2,9 @@
   "version": "1",
   "name": "inxbtwt-api",
   "type": "collection",
-  "ignore": ["node_modules", ".git"]
+  "ignore": [
+    "node_modules",
+    ".git",
+    "fixtures"
+  ]
 }

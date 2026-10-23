@@ -1,7 +1,7 @@
 meta {
   name: Atualizar usuário parcialmente (PATCH)
   type: http
-  seq: 5
+  seq: 2
 }
 
 patch {
@@ -48,7 +48,7 @@ tests {
     const body = res.getBody();
     const before = JSON.parse(bru.getVar("userBeforePatch"));
     expect(body.data.name).to.equal("Maria Parcial");
-    for (const field of ["userId", "photoUrl", "email", "phone", "createdAt"]) {
+    for (const field of ["userId", "email", "phone", "createdAt"]) {
       expect(body.data[field]).to.equal(before[field]);
     }
   });

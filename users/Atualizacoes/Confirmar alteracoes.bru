@@ -1,7 +1,7 @@
 meta {
-  name: Consultar usuário
+  name: Confirmar alterações persistidas
   type: http
-  seq: 2
+  seq: 3
 }
 
 get {
@@ -33,7 +33,7 @@ tests {
   test("Dados retornados correspondem ao fluxo", function () {
     const body = res.getBody();
     const expected = JSON.parse(bru.getVar("lastUser"));
-    for (const field of ["userId", "name", "photoUrl", "email", "phone"]) {
+    for (const field of ["userId", "name", "email", "phone"]) {
       expect(body.data[field]).to.equal(expected[field]);
     }
     for (const field of ["createdAt", "updatedAt"]) {

@@ -1,0 +1,62 @@
+meta {
+  name: Enviar foto do usuário
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/users/{{userId}}/photo
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  photo: @file(fixtures/avatar.png) @contentType(image/png)
+}
+
+script:pre-request {
+  if (!bru.getVar("userId")) {
+    throw new Error("Execute primeiro Criar usuário para preencher userId.");
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const file = res.getBody().data;
+    bru.setVar("photoUrl", file.url);
+    bru.setVar("photoKey", file.key);
+  }
+}
+
+tests {
+  test("Foto atualizada com HTTP 200 e ApiResponse", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.status).to.equal("OK");
+    expect(body.message).to.equal("Foto do usuário atualizada com sucesso.");
+    expect(body).not.to.have.property("exception");
+    expect(body).not.to.have.property("trace");
+  });
+  test("Metadados e URL correspondem ao arquivo enviado", function () {
+    const file = res.getBody().data;
+    expect(file.bucket).to.equal("inxbtwt-files");
+    expect(file.contentType).to.equal("image/png");
+    expect(file.fileName).to.equal("avatar.png");
+    expect(file.size).to.be.greaterThan(0);
+    expect(file.key).to.include("img/profile/photo/");
+    const id = file.key.split("/").pop();
+    expect(id.length).to.equal(36);
+    expect(id.charAt(14)).to.equal("7");
+    expect(file.url).to.include("/" + file.bucket + "/" + file.key);
+  });
+}
+
+docs {
+  Envia photo em multipart/form-data para POST /users/{userId}/photo.
+  Atualiza photo_url do usuário e guarda photoUrl e photoKey em variáveis de runtime.
+  Para testar outra foto, selecione um arquivo PNG, JPEG ou WEBP no Body e ajuste o content type.
+}

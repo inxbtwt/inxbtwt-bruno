@@ -18,7 +18,6 @@ headers {
 body:json {
   {
     "name": "Maria Silva",
-    "photoUrl": "http://localhost:8333/inxbtwt-files/avatar.png",
     "email": "{{testEmail}}",
     "phone": "11999999999",
     "password": "SenhaTeste123"
@@ -28,6 +27,10 @@ body:json {
 script:pre-request {
   bru.deleteVar("userId");
   bru.deleteVar("lastUser");
+  bru.deleteVar("photoUrl");
+  bru.deleteVar("photoKey");
+  bru.deleteVar("coverUrl");
+  bru.deleteVar("coverKey");
   const suffix = Date.now().toString() + Math.random().toString(36).slice(2, 8);
   bru.setVar("testEmail", "bruno." + suffix + "@example.com");
 }
@@ -57,5 +60,6 @@ tests {
 docs {
   Cria um usuário usando POST /users.
   Gera um e-mail único e salva userId para as próximas requisições.
-  A URL da foto é um exemplo; o arquivo avatar.png não é criado por esta requisição.
+  Envia apenas o objeto JSON no body, sem foto e sem chamadas ao bucket.
+  Envie perfil e capa separadamente nas requisições da pasta Fotos.
 }
