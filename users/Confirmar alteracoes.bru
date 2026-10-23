@@ -1,0 +1,43 @@
+meta {
+  name: Confirmar alterações persistidas
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/users/{{userId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  if (!bru.getVar("userId")) {
+    throw new Error("Execute primeiro Criar usuário para preencher userId.");
+  }
+}
+
+tests {
+  test("HTTP 200 e resposta padronizada", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.status).to.equal("OK");
+    expect(body.message).to.be.a("string").and.not.empty;
+    expect(body).not.to.have.property("exception");
+    expect(body).not.to.have.property("trace");
+    expect(body.data).not.to.have.property("password");
+  });
+  test("Dados retornados correspondem ao fluxo", function () {
+    const body = res.getBody();
+    const expected = JSON.parse(bru.getVar("lastUser"));
+    for (const field of ["userId", "name", "photoUrl", "email", "phone"]) {
+      expect(body.data[field]).to.equal(expected[field]);
+    }
+    for (const field of ["createdAt", "updatedAt"]) {
+      expect(Date.parse(body.data[field])).to.equal(Date.parse(expected[field]));
+    }
+  });
+}

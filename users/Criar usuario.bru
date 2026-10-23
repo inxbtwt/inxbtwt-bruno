@@ -1,0 +1,61 @@
+meta {
+  name: Criar usuário
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "name": "Maria Silva",
+    "photoUrl": "http://localhost:8333/inxbtwt-files/avatar.png",
+    "email": "{{testEmail}}",
+    "phone": "11999999999",
+    "password": "SenhaTeste123"
+  }
+}
+
+script:pre-request {
+  bru.deleteVar("userId");
+  bru.deleteVar("lastUser");
+  const suffix = Date.now().toString() + Math.random().toString(36).slice(2, 8);
+  bru.setVar("testEmail", "bruno." + suffix + "@example.com");
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    const user = res.getBody().data;
+    bru.setVar("userId", user.userId);
+    bru.setVar("lastUser", JSON.stringify(user));
+  }
+}
+
+tests {
+  test("Usuário criado com HTTP 201", function () {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("Resposta no padrão ApiResponse, sem senha", function () {
+    const body = res.getBody();
+    expect(body.status).to.equal("OK");
+    expect(body.message).to.equal("Usuário criado com sucesso.");
+    expect(body.data.userId).to.be.a("string");
+    expect(body.data).not.to.have.property("password");
+  });
+}
+
+docs {
+  Cria um usuário usando POST /users.
+  Gera um e-mail único e salva userId para as próximas requisições.
+  A URL da foto é um exemplo; o arquivo avatar.png não é criado por esta requisição.
+}

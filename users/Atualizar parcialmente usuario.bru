@@ -1,0 +1,55 @@
+meta {
+  name: Atualizar usuário parcialmente (PATCH)
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/users/{{userId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Maria Parcial"
+  }
+}
+
+script:pre-request {
+  if (!bru.getVar("userId")) {
+    throw new Error("Execute primeiro Criar usuário para preencher userId.");
+  }
+  bru.setVar("userBeforePatch", bru.getVar("lastUser"));
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setVar("lastUser", JSON.stringify(res.getBody().data));
+  }
+}
+
+tests {
+  test("HTTP 200 e resposta padronizada", function () {
+    expect(res.getStatus()).to.equal(200);
+    const body = res.getBody();
+    expect(body.status).to.equal("OK");
+    expect(body.message).to.be.a("string").and.not.empty;
+    expect(body).not.to.have.property("exception");
+    expect(body).not.to.have.property("trace");
+    expect(body.data).not.to.have.property("password");
+  });
+  test("Dados retornados correspondem ao fluxo", function () {
+    const body = res.getBody();
+    const before = JSON.parse(bru.getVar("userBeforePatch"));
+    expect(body.data.name).to.equal("Maria Parcial");
+    for (const field of ["userId", "photoUrl", "email", "phone", "createdAt"]) {
+      expect(body.data[field]).to.equal(before[field]);
+    }
+  });
+}
