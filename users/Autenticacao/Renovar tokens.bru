@@ -1,0 +1,22 @@
+meta {
+  name: Renovar tokens
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/auth/refresh
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Envia automaticamente o cookie de refresh e o header CSRF da collection.
+  Não envie JWT no body nem no header Authorization.
+  Cada renovação substitui os dois cookies e invalida o refresh token anterior.
+  Funciona mesmo após o vencimento do access token, enquanto o refresh permanecer válido.
+}

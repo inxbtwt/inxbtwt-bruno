@@ -17,9 +17,11 @@ headers {
 
 body:json {
   {
-    "name": "Maria Silva",
-    "email": "{{testEmail}}",
+    "name": "Lucas Oliveira",
+  //   "email": "{{testEmail}}",
+    "email": "camposdlucasoli@gmail.com",
     "phone": "11999999999",
+  //   "password": "{{loginPassword}}",
     "password": "SenhaTeste123",
     "addresses": [
       {
@@ -50,6 +52,7 @@ script:pre-request {
 script:post-response {
   if (res.getStatus() === 201) {
     const user = res.getBody().data;
+    bru.setVar("loginEmail", user.email);
     bru.setVar("userId", user.userId);
     bru.setVar("lastUser", JSON.stringify(user));
   }
@@ -59,7 +62,7 @@ tests {
   test("Usuário criado com HTTP 201", function () {
     expect(res.getStatus()).to.equal(201);
   });
-
+  
   test("Resposta no padrão ApiResponse, sem senha", function () {
     const body = res.getBody();
     expect(body.status).to.equal("OK");
@@ -67,7 +70,7 @@ tests {
     expect(body.data.userId).to.be.a("string");
     expect(body.data).not.to.have.property("password");
   });
-
+  
   test("Cadastro retorna os campos mapeados e as datas geradas", function () {
     const user = res.getBody().data;
     expect(user.name).to.equal("Maria Silva");

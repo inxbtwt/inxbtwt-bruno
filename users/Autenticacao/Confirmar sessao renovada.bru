@@ -1,0 +1,19 @@
+meta {
+  name: Confirmar sessão renovada
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/me
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Confirma que o novo cookie de acesso permite consultar o usuário autenticado.
+}

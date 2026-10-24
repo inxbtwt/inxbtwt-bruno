@@ -1,53 +1,36 @@
 # Bruno — inxbtwt-api
 
-Abra esta pasta no Bruno e selecione o ambiente **Local**. A API usa `http://localhost:8080`; inicie também PostgreSQL e SeaweedFS.
+Abra esta pasta no Bruno e selecione **Local HTTPS**. Mantenha o Cookie Jar habilitado: os JWTs são enviados e renovados por cookies HttpOnly, Secure e SameSite=Strict.
 
-## Organização
+## Endereço da API
 
-```text
-Usuários
-├── Cadastro
-│   └── Criar usuário
-├── Consultas
-│   ├── Consultar usuário
-│   └── Listar usuários
-├── Atualizações
-│   ├── Atualizar usuário (PUT)
-│   ├── Atualizar usuário parcialmente (PATCH)
-│   └── Confirmar alterações persistidas
-└── Fotos
-    ├── Enviar foto do usuário
-    ├── Enviar capa do usuário
-    ├── Consultar URLs das fotos
-    ├── Buscar foto do perfil
-    └── Buscar foto da capa
-```
+- **Local HTTPS**: `https://localhost:8081`, destinado ao fluxo de autenticação por cookies. Configure HTTPS na API ou em um proxy e ajuste `baseUrl` se necessário. O backend ainda não possui uma configuração permanente de TLS. Use um certificado confiável para o seu computador.
+- **Local**: `http://localhost:8081`, para diagnóstico dos endpoints HTTP. Cookies Secure não são enviados normalmente por clientes HTTP; este ambiente não é o fluxo recomendado de autenticação.
 
-A ordem das pastas e requisições está definida nos arquivos `.bru`. Execute a collection inteira ou a pasta **Usuários** no Runner para percorrer o fluxo completo.
+Inicie PostgreSQL e SeaweedFS para o fluxo completo de usuários e fotos. Não desabilite a validação de certificados globalmente.
 
-## Uso individual
+## Ordem de execução
 
-- **Criar usuário** envia apenas o objeto JSON no body (`name`, `email`, `phone`, `password`); gera um e-mail único e guarda `userId` e `lastUser`. Não envia arquivos nem acessa o bucket.
-- As consultas e alterações reutilizam `userId`. Para trabalhar com um usuário existente, defina essa variável no Bruno.
-- **Enviar foto** e **Enviar capa** guardam `photoUrl`/`photoKey` e `coverUrl`/`coverKey`.
-- **Consultar URLs** precisa apenas de `userId`; preenche as URLs atuais e limpa variáveis de fotos ausentes. Perfil e capa podem ser nulos antes dos uploads.
-- As buscas das imagens usam essas URLs. Envie uma capa antes de buscar a imagem da capa caso ainda não exista.
-- O PUT e o PATCH atualizam dados cadastrais; as fotos são alteradas pelos uploads.
+1. **Preparação > Obter CSRF**: guarda `csrfToken` e `csrfHeaderName`; o Cookie Jar armazena o cookie correspondente.
+2. **Usuários > Cadastro > Criar usuário**: cria um usuário com endereço e guarda `loginEmail`, `userId` e `lastUser`.
+3. **Usuários > Autenticação > Login**: envia e-mail e senha. A resposta usa ApiResponse, com `data.expiresIn`; os JWTs chegam exclusivamente em Set-Cookie.
+4. **Usuário autenticado**: consulta `GET /me` e atualiza os dados usados nas demais requisições.
+5. **Renovar tokens**: envia o cookie de refresh e o header CSRF, sem body. O servidor invalida o refresh anterior e substitui ambos os cookies.
+6. **Confirmar sessão renovada**: consulta `/me` com o novo cookie de acesso.
+7. Execute consultas, atualizações e fotos conforme as permissões configuradas no backend.
 
-As variáveis criadas por scripts são de runtime e não persistem após reiniciar o Bruno. Scripts de comparação de dados usam `lastUser`, preenchida pelo cadastro, PUT e PATCH.
+Para uma conta existente, execute Obter CSRF, defina `loginEmail` e `loginPassword` no ambiente e execute Login. A variável de runtime `loginEmail` criada pelo cadastro tem precedência durante a sessão; limpe-a para trocar de conta.
 
-## Verificação dos mapeamentos de usuário
+O script da collection injeta o header CSRF automaticamente em POST, PUT, PATCH e DELETE. Se apagar os cookies ou reiniciar a sessão, execute Obter CSRF novamente. Os JWTs não são copiados para variáveis nem enviados em Authorization. O Bruno gerencia os cookies, seus caminhos e expirações; o refresh pode ser executado mesmo com o cookie de acesso vencido.
 
-O cadastro verifica nome, e-mail e telefone retornados, as datas geradas e a ausência de senha e campos internos na resposta. O PUT compara o identificador e a data de criação com o estado anterior; execute o cadastro antes dele para preencher `lastUser`. O PATCH verifica que os campos não enviados foram preservados.
+## Permissões atuais
 
-O cadastro aceita uma lista opcional `addresses` e inclui um endereço de exemplo. A resposta retorna os endereços com `addressId`, campos de endereço e datas, sem o ID interno ou referência ao usuário. PUT e PATCH preservam os endereços existentes.
+O YAML do backend libera cadastro, login, CSRF e refresh; `/me` exige autenticação. As consultas de usuários aceitam USER ou ADMIN e PUT exige autenticação. PATCH e upload de fotos ainda não estão liberados no YAML e retornarão 403 até que suas regras sejam adicionadas. Essas requisições foram mantidas para uso após a configuração das permissões.
 
-## Arquivos e execução
+## Usuários e arquivos
 
-`fixtures/avatar.png` é a imagem de teste usada apenas nos endpoints separados de upload; seu caminho é relativo à raiz da collection e continua válido em todas as pastas. Para testar outra foto, altere o arquivo no Body da requisição.
+O cadastro aceita `addresses` com street, city, state, zipCode, country, referenceName, number e isDefault. As respostas incluem UUID e datas dos endereços, sem ID interno ou referência circular ao usuário. PUT e PATCH preservam os endereços existentes.
 
-```powershell
-npx --yes @usebruno/cli@4.2.1 run --env Local --sandbox safe
-```
+`fixtures/avatar.png` é usado nos uploads separados de perfil e capa. O cadastro gera um e-mail único e usa a senha fictícia `loginPassword`. O fluxo grava dados reais no banco local. As variáveis de runtime não persistem após reiniciar o Bruno.
 
-O fluxo cria e atualiza um usuário real no banco local e envia imagens ao bucket `inxbtwt-files`. A senha é fictícia. Sucessos JSON usam `ApiResponse`; os downloads retornam a imagem em bytes.
+As verificações existentes nas requisições de usuário foram preservadas; não foram adicionados novos blocos de testes automatizados.

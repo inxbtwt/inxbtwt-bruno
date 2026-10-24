@@ -1,0 +1,31 @@
+meta {
+  name: Login
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/auth
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "email": "{{loginEmail}}",
+    "password": "{{loginPassword}}"
+  }
+}
+
+docs {
+  Execute Obter CSRF antes do login.
+  O cadastro preenche loginEmail; para uma conta existente, defina loginEmail e loginPassword no ambiente.
+  O Cookie Jar recebe __Host-AccessToken e __Secure-RefreshToken automaticamente.
+  Os JWTs são HttpOnly, Secure e SameSite=Strict e não aparecem no corpo JSON.
+  A resposta ApiResponse contém data.expiresIn, em segundos.
+}

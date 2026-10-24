@@ -1,0 +1,33 @@
+meta {
+  name: Obter CSRF
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/auth/csrf
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:post-response {
+  bru.deleteVar("csrfToken");
+  bru.deleteVar("csrfHeaderName");
+
+  if (res.getStatus() === 200) {
+    const csrf = res.getBody().data;
+    bru.setVar("csrfToken", csrf.token);
+    bru.setVar("csrfHeaderName", csrf.headerName);
+  }
+}
+
+docs {
+  Obtém o token CSRF e o cookie associado antes do cadastro ou login.
+  O script da collection envia o header nas operações de escrita.
+  Execute novamente se os cookies forem apagados ou o token CSRF expirar.
+  Mantenha o Cookie Jar habilitado e utilize HTTPS para cookies Secure.
+}

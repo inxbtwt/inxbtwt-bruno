@@ -1,0 +1,29 @@
+meta {
+  name: Usuário autenticado
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/me
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const user = res.getBody().data;
+    bru.setVar("userId", user.userId);
+    bru.setVar("lastUser", JSON.stringify(user));
+  }
+}
+
+docs {
+  Retorna os dados do usuário autenticado, incluindo endereços, sem senha.
+  Usa o cookie de acesso; não configure Authorization Bearer.
+  Atualiza userId e lastUser para as demais requisições.
+}
