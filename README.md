@@ -36,6 +36,12 @@ A ordem das pastas e requisições está definida nos arquivos `.bru`. Execute a
 
 As variáveis criadas por scripts são de runtime e não persistem após reiniciar o Bruno. Scripts de comparação de dados usam `lastUser`, preenchida pelo cadastro, PUT e PATCH.
 
+## Verificação dos mapeamentos de usuário
+
+O cadastro verifica nome, e-mail e telefone retornados, as datas geradas e a ausência de senha e campos internos na resposta. O PUT compara o identificador e a data de criação com o estado anterior; execute o cadastro antes dele para preencher `lastUser`. O PATCH verifica que os campos não enviados foram preservados.
+
+O cadastro aceita uma lista opcional `addresses` e inclui um endereço de exemplo. A resposta retorna os endereços com `addressId`, campos de endereço e datas, sem o ID interno ou referência ao usuário. PUT e PATCH preservam os endereços existentes.
+
 ## Arquivos e execução
 
 `fixtures/avatar.png` é a imagem de teste usada apenas nos endpoints separados de upload; seu caminho é relativo à raiz da collection e continua válido em todas as pastas. Para testar outra foto, altere o arquivo no Body da requisição.

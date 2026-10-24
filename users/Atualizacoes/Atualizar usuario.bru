@@ -28,6 +28,7 @@ script:pre-request {
   if (!bru.getVar("userId")) {
     throw new Error("Execute primeiro Criar usuário para preencher userId.");
   }
+  bru.setVar("userBeforePut", bru.getVar("lastUser"));
 }
 
 script:post-response {
@@ -52,5 +53,16 @@ tests {
     expect(body.data.name).to.equal("Maria Atualizada");
     expect(body.data.email).to.equal(bru.getVar("testEmail"));
     expect(body.data.phone).to.equal("11888888888");
+  });
+  test("PUT preserva o identificador e a data de criação", function () {
+    const snapshot = bru.getVar("userBeforePut");
+    if (!snapshot) {
+      throw new Error("Execute Criar usuário antes do PUT para comparar os dados.");
+    }
+    const before = JSON.parse(snapshot);
+    const user = res.getBody().data;
+    expect(user.userId).to.equal(before.userId);
+    expect(user.createdAt).to.equal(before.createdAt);
+    expect(user.updatedAt).to.be.a("string").and.not.empty;
   });
 }

@@ -20,7 +20,19 @@ body:json {
     "name": "Maria Silva",
     "email": "{{testEmail}}",
     "phone": "11999999999",
-    "password": "SenhaTeste123"
+    "password": "SenhaTeste123",
+    "addresses": [
+      {
+        "street": "Rua de Teste",
+        "city": "São Paulo",
+        "state": "SP",
+        "zipCode": "01001000",
+        "country": "Brasil",
+        "referenceName": "Casa",
+        "number": "100",
+        "isDefault": true
+      }
+    ]
   }
 }
 
@@ -54,6 +66,29 @@ tests {
     expect(body.message).to.equal("Usuário criado com sucesso.");
     expect(body.data.userId).to.be.a("string");
     expect(body.data).not.to.have.property("password");
+  });
+
+  test("Cadastro retorna os campos mapeados e as datas geradas", function () {
+    const user = res.getBody().data;
+    expect(user.name).to.equal("Maria Silva");
+    expect(user.email).to.equal(bru.getVar("testEmail"));
+    expect(user.phone).to.equal("11999999999");
+    for (const field of ["createdAt", "updatedAt"]) {
+      expect(user[field]).to.be.a("string").and.not.empty;
+      expect(Number.isNaN(Date.parse(user[field]))).to.equal(false);
+    }
+    for (const field of ["id", "photoUrl", "coverUrl"]) {
+      expect(user).not.to.have.property(field);
+    }
+  });
+  test("Endereço cadastrado é retornado sem referência circular", function () {
+    const addresses = res.getBody().data.addresses;
+    expect(addresses).to.have.lengthOf(1);
+    expect(addresses[0].addressId).to.be.a("string");
+    expect(addresses[0].street).to.equal("Rua de Teste");
+    expect(addresses[0].isDefault).to.equal(true);
+    expect(addresses[0]).not.to.have.property("user");
+    expect(addresses[0]).not.to.have.property("id");
   });
 }
 
