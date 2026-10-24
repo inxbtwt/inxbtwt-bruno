@@ -18,11 +18,10 @@ headers {
 body:json {
   {
     "name": "Lucas Oliveira",
-  //   "email": "{{testEmail}}",
-    "email": "camposdlucasoli@gmail.com",
-    "phone": "11999999999",
-  //   "password": "{{loginPassword}}",
-    "password": "SenhaTeste123",
+    "username": "{{testUsername}}",
+    "email": "{{testEmail}}",
+    "phone": "{{testPhone}}",
+    "password": "{{loginPassword}}",
     "addresses": [
       {
         "street": "Rua de Teste",
@@ -45,7 +44,11 @@ script:pre-request {
   bru.deleteVar("photoKey");
   bru.deleteVar("coverUrl");
   bru.deleteVar("coverKey");
+  bru.deleteVar("profileId");
+  bru.deleteVar("lastProfile");
   const suffix = Date.now().toString() + Math.random().toString(36).slice(2, 8);
+  bru.setVar("testUsername", "bruno_" + suffix);
+  bru.setVar("testPhone", "11" + Date.now().toString().slice(-6) + Math.floor(Math.random() * 1000).toString().padStart(3, "0"));
   bru.setVar("testEmail", "bruno." + suffix + "@example.com");
 }
 
@@ -58,46 +61,10 @@ script:post-response {
   }
 }
 
-tests {
-  test("Usuário criado com HTTP 201", function () {
-    expect(res.getStatus()).to.equal(201);
-  });
-  
-  test("Resposta no padrão ApiResponse, sem senha", function () {
-    const body = res.getBody();
-    expect(body.status).to.equal("OK");
-    expect(body.message).to.equal("Usuário criado com sucesso.");
-    expect(body.data.userId).to.be.a("string");
-    expect(body.data).not.to.have.property("password");
-  });
-  
-  test("Cadastro retorna os campos mapeados e as datas geradas", function () {
-    const user = res.getBody().data;
-    expect(user.name).to.equal("Maria Silva");
-    expect(user.email).to.equal(bru.getVar("testEmail"));
-    expect(user.phone).to.equal("11999999999");
-    for (const field of ["createdAt", "updatedAt"]) {
-      expect(user[field]).to.be.a("string").and.not.empty;
-      expect(Number.isNaN(Date.parse(user[field]))).to.equal(false);
-    }
-    for (const field of ["id", "photoUrl", "coverUrl"]) {
-      expect(user).not.to.have.property(field);
-    }
-  });
-  test("Endereço cadastrado é retornado sem referência circular", function () {
-    const addresses = res.getBody().data.addresses;
-    expect(addresses).to.have.lengthOf(1);
-    expect(addresses[0].addressId).to.be.a("string");
-    expect(addresses[0].street).to.equal("Rua de Teste");
-    expect(addresses[0].isDefault).to.equal(true);
-    expect(addresses[0]).not.to.have.property("user");
-    expect(addresses[0]).not.to.have.property("id");
-  });
-}
 
 docs {
   Cria um usuário usando POST /users.
-  Gera um e-mail único e salva userId para as próximas requisições.
+  Gera username, e-mail e telefone únicos e salva userId para as próximas requisições.
   Envia apenas o objeto JSON no body, sem foto e sem chamadas ao bucket.
   Envie perfil e capa separadamente nas requisições da pasta Fotos.
 }

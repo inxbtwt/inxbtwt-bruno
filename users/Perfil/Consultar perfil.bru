@@ -1,0 +1,33 @@
+meta {
+  name: Consultar perfil autenticado
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/profiles/me
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const profile = res.getBody().data;
+    bru.setVar("lastProfile", JSON.stringify(profile));
+    if (profile.profileId != null) {
+      bru.setVar("profileId", profile.profileId);
+    } else {
+      bru.deleteVar("profileId");
+    }
+  }
+}
+
+docs {
+  Consulta bio e coverUrl do usuário autenticado pelo Cookie Jar, sem userId na URL.
+  Antes do primeiro salvamento, profileId, bio e coverUrl podem ser null.
+  Para enviar a capa, use Fotos > Enviar capa do usuário com type=COVER.
+}

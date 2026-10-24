@@ -1,0 +1,26 @@
+meta {
+  name: Consultar disponibilidade de telefone
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/users/availability?field=phone&value={{availabilityPhone}}
+  body: none
+  auth: none
+}
+
+params:query {
+  field: phone
+  value: {{availabilityPhone}}
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Consulta pública pelo endpoint unificado GET /users/availability?field=phone&value=...
+  Configure availabilityPhone no ambiente. data.available indica se o valor está livre.
+  Valores já utilizados retornam available=false. Campo inválido ou valor vazio retorna HTTP 400.
+}

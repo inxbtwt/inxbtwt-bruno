@@ -1,0 +1,26 @@
+meta {
+  name: Consultar disponibilidade de e-mail
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/users/availability?field=email&value={{availabilityEmail}}
+  body: none
+  auth: none
+}
+
+params:query {
+  field: email
+  value: {{availabilityEmail}}
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Consulta pública pelo endpoint unificado GET /users/availability?field=email&value=...
+  Configure availabilityEmail no ambiente. data.available indica se o valor está livre.
+  Valores já utilizados retornam available=false. Campo inválido ou valor vazio retorna HTTP 400.
+}

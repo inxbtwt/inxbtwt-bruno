@@ -1,0 +1,37 @@
+meta {
+  name: Atualizar bio do perfil
+  type: http
+  seq: 2
+}
+
+patch {
+  url: {{baseUrl}}/profiles/me
+  body: json
+  auth: none
+}
+
+headers {
+  Accept: application/json
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "bio": "Minha bio na JUST."
+  }
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const profile = res.getBody().data;
+    bru.setVar("profileId", profile.profileId);
+    bru.setVar("lastProfile", JSON.stringify(profile));
+  }
+}
+
+docs {
+  Cria o perfil no primeiro salvamento e atualiza somente a bio. A capa é preservada.
+  Envie bio como string vazia para limpar o texto. Campos omitidos ou null são preservados.
+  Exige login e CSRF. A collection injeta o header CSRF automaticamente.
+  Use Consultar perfil autenticado depois para conferir a persistência.
+}

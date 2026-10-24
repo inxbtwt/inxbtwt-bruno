@@ -1,0 +1,31 @@
+meta {
+  name: Logout
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/auth/logout
+  body: none
+  auth: none
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+  forwardAuthorizationHeader: false
+}
+
+script:post-response {
+  if (res.getStatus() === 200 || res.getStatus() === 204) {
+    for (const name of ["userId", "lastUser", "profileId", "lastProfile", "photoUrl", "photoKey", "coverUrl", "coverKey"]) {
+      bru.deleteVar(name);
+    }
+  }
+}
+
+docs {
+  Encerra a sessão em POST /auth/logout, revogando o refresh e limpando os cookies de autenticação.
+  A collection envia o header CSRF; execute Obter CSRF antes se necessário.
+  Após o logout, consultas autenticadas devem retornar HTTP 401.
+}

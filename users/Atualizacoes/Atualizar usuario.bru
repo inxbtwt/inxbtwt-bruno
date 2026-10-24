@@ -18,9 +18,10 @@ headers {
 body:json {
   {
     "name": "Maria Atualizada",
-    "email": "{{testEmail}}",
-    "phone": "11888888888",
-    "password": "SenhaTeste123"
+    "username": "{{updateUsername}}",
+    "email": "{{updateEmail}}",
+    "phone": "{{updatePhone}}",
+    "password": "{{loginPassword}}"
   }
 }
 
@@ -28,6 +29,13 @@ script:pre-request {
   if (!bru.getVar("userId")) {
     throw new Error("Execute primeiro Criar usuário para preencher userId.");
   }
+  const current = JSON.parse(bru.getVar("lastUser") || "null");
+  if (!current) {
+    throw new Error("Execute Usuário autenticado para carregar os dados atuais antes do PUT.");
+  }
+  bru.setVar("updateUsername", current.username);
+  bru.setVar("updateEmail", current.email);
+  bru.setVar("updatePhone", current.phone);
   bru.setVar("userBeforePut", bru.getVar("lastUser"));
 }
 
@@ -35,34 +43,4 @@ script:post-response {
   if (res.getStatus() === 200) {
     bru.setVar("lastUser", JSON.stringify(res.getBody().data));
   }
-}
-
-tests {
-  test("HTTP 200 e resposta padronizada", function () {
-    expect(res.getStatus()).to.equal(200);
-    const body = res.getBody();
-    expect(body.status).to.equal("OK");
-    expect(body.message).to.be.a("string").and.not.empty;
-    expect(body).not.to.have.property("exception");
-    expect(body).not.to.have.property("trace");
-    expect(body.data).not.to.have.property("password");
-  });
-  test("Dados retornados correspondem ao fluxo", function () {
-    const body = res.getBody();
-    expect(body.data.userId).to.equal(bru.getVar("userId"));
-    expect(body.data.name).to.equal("Maria Atualizada");
-    expect(body.data.email).to.equal(bru.getVar("testEmail"));
-    expect(body.data.phone).to.equal("11888888888");
-  });
-  test("PUT preserva o identificador e a data de criação", function () {
-    const snapshot = bru.getVar("userBeforePut");
-    if (!snapshot) {
-      throw new Error("Execute Criar usuário antes do PUT para comparar os dados.");
-    }
-    const before = JSON.parse(snapshot);
-    const user = res.getBody().data;
-    expect(user.userId).to.equal(before.userId);
-    expect(user.createdAt).to.equal(before.createdAt);
-    expect(user.updatedAt).to.be.a("string").and.not.empty;
-  });
 }

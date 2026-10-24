@@ -52,6 +52,6 @@ tests {
 }
 
 docs {
-  Retorna as URLs atuais de perfil e capa em ApiResponse. Perfil e capa podem ser null antes dos uploads.
+  Retorna as URLs atuais de perfil e capa em ApiResponse. A capa vem do perfil, com compatibilidade com capas antigas do usuário. Perfil e capa podem ser null antes dos uploads.
   Precisa apenas de userId. Preenche photoUrl e coverUrl a partir da resposta; limpa URLs ausentes para não reutilizar fotos de outro usuário.
 }

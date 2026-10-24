@@ -1,0 +1,26 @@
+meta {
+  name: Consultar disponibilidade de username
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/users/availability?field=username&value={{availabilityUsername}}
+  body: none
+  auth: none
+}
+
+params:query {
+  field: username
+  value: {{availabilityUsername}}
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Consulta pública pelo endpoint unificado GET /users/availability?field=username&value=...
+  Configure availabilityUsername no ambiente. data.available indica se o valor está livre.
+  Valores já utilizados retornam available=false. Campo inválido ou valor vazio retorna HTTP 400.
+}

@@ -57,6 +57,7 @@ tests {
 
 docs {
   Envia photo em multipart/form-data para POST /users/{userId}/photo.
-  Atualiza cover_url do usuário e guarda coverUrl e coverKey em variáveis de runtime.
+  Envia type=COVER e atualiza cover_url em profile_entity, criando o perfil se necessário.
+  Guarda coverUrl e coverKey para consultar a imagem binária e o perfil autenticado.
   Para testar outra foto, selecione um arquivo PNG, JPEG ou WEBP no Body e ajuste o content type.
 }
