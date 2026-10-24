@@ -1,0 +1,26 @@
+meta {
+  name: Baixar anexo local da publicação
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/posts/{{postId}}/media/{{postMediaId}}
+  body: none
+  auth: none
+}
+
+script:pre-request {
+  const postIdValue = bru.getEnvVar("postId") || bru.getVar("postId");
+  if (!postIdValue) throw new Error("Defina postId no ambiente ou execute a preparação indicada na documentação.");
+  bru.setVar("postId", postIdValue);
+  const postMediaIdValue = bru.getEnvVar("postMediaId") || bru.getVar("postMediaId");
+  if (!postMediaIdValue) throw new Error("Defina postMediaId no ambiente ou execute a preparação indicada na documentação.");
+  bru.setVar("postMediaId", postMediaIdValue);
+}
+
+docs {
+  Exige login. postMediaId é preenchido ao criar/consultar um post com mídia local.
+  Retorna bytes com o MIME da imagem. O anexo precisa pertencer ao post.
+  GIFs do Tenor são visualizados pela URL de incorporação, sem este download.
+}

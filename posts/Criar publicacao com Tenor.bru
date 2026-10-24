@@ -1,0 +1,38 @@
+meta {
+  name: Criar publicação com GIF do Tenor
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/posts
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  content: {{postContent}}
+  tenor: {{tenorEmbed}}
+}
+
+script:post-response {
+  if (res.getStatus() >= 200 && res.getStatus() < 300) {
+    const post = res.getBody().data;
+    bru.setVar("postId", post.postId);
+    bru.setVar("lastPost", JSON.stringify(post));
+    bru.deleteVar("postMediaId");
+    const media = (post.media || []).find((item) => item.provider === "UPLOAD");
+    if (media) bru.setVar("postMediaId", media.mediaId);
+  }
+}
+
+docs {
+  Exige login e CSRF. tenorEmbed aceita um link tenor.com/view/...-{id}, tenor.com/embed/{id} ou HTML de incorporação.
+  O servidor extrai somente o ID numérico e não executa o HTML colado.
+  O anexo retorna provider TENOR, externalId e URL de incorporação; não existe arquivo local para baixar.
+  Não combine tenor com partes media. content pode ficar vazio.
+}

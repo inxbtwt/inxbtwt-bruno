@@ -1,0 +1,38 @@
+meta {
+  name: Criar publicação com imagem
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/posts
+  body: multipartForm
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+body:multipart-form {
+  content: {{postContent}}
+  media: @file(fixtures/avatar.png) @contentType(image/png)
+}
+
+script:post-response {
+  if (res.getStatus() >= 200 && res.getStatus() < 300) {
+    const post = res.getBody().data;
+    bru.setVar("postId", post.postId);
+    bru.setVar("lastPost", JSON.stringify(post));
+    bru.deleteVar("postMediaId");
+    const media = (post.media || []).find((item) => item.provider === "UPLOAD");
+    if (media) bru.setVar("postMediaId", media.mediaId);
+  }
+}
+
+docs {
+  Exige login e CSRF. Envia multipart com content e media.
+  Amostra usa fixtures/avatar.png. Aceita até 4 PNG/JPEG ou 1 GIF, 10 MiB por arquivo.
+  Para mais imagens, adicione outras partes media. Texto pode ficar vazio quando há anexo.
+  Não defina Content-Type manualmente: o Bruno gera o boundary.
+}

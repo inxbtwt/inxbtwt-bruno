@@ -1,0 +1,30 @@
+meta {
+  name: Buscar foto do perfil visualizado
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/users/{{viewedUserId}}/photo?url={{viewedPhotoUrl}}
+  body: none
+  auth: none
+}
+
+params:query {
+  url: {{viewedPhotoUrl}}
+}
+
+headers {
+  Accept: image/png, image/jpeg, image/webp, application/json
+}
+
+script:pre-request {
+  if (!bru.getVar("viewedUserId") || !bru.getVar("viewedPhotoUrl")) {
+    throw new Error("Execute Visualizar perfil por username. O perfil precisa ter foto cadastrada.");
+  }
+}
+
+docs {
+  Baixa a foto do perfil visualizado pela API autenticada, sem acessar diretamente o bucket.
+  Retorna imagem binária, sem ApiResponse em caso de sucesso. Exige login pelo Cookie Jar.
+}

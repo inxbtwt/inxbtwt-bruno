@@ -1,0 +1,34 @@
+meta {
+  name: Listar publicações do perfil
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/posts?authorId={{postAuthorId}}&tab={{profilePostsTab}}&page={{postPage}}&size={{postSize}}
+  body: none
+  auth: none
+}
+
+params:query {
+  authorId: {{postAuthorId}}
+  tab: {{profilePostsTab}}
+  page: {{postPage}}
+  size: {{postSize}}
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  const author = bru.getEnvVar("postAuthorId") || bru.getVar("userId");
+  if (!author) throw new Error("Execute Usuário autenticado ou defina postAuthorId com o UUID do autor.");
+  bru.setVar("postAuthorId", author);
+}
+
+docs {
+  Exige login. postAuthorId escolhe o perfil; vazio usa userId da sessão consultada por /me.
+  profilePostsTab: PUBLICATIONS (posts e reposts), REPLIES (comentários) ou LIKES.
+  Não inclui posts excluídos. Paginação começa em zero, size entre 1 e 100.
+}

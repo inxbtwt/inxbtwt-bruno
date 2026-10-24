@@ -1,0 +1,26 @@
+meta {
+  name: Enviar solicitação de amizade
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/friendships/{{friendUserId}}/request
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  const target = bru.getEnvVar("friendUserId") || bru.getVar("friendUserId") || bru.getVar("viewedUserId");
+  if (!target) throw new Error("Defina friendUserId ou execute Visualizar perfil por username para selecionar outra pessoa.");
+  bru.setVar("friendUserId", target);
+}
+
+docs {
+  Exige login e CSRF. Notifica o destinatário quando cria o pedido. Não permite solicitar a si mesmo.
+  Duplicatas e pedidos cruzados reutilizam uma relação; pedido cruzado não aceita automaticamente a amizade.
+}

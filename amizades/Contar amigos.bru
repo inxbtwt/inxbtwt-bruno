@@ -1,0 +1,20 @@
+meta {
+  name: Contar amigos aceitos
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/friendships/count
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Exige login. Retorna data.count, apenas amizades aceitas do usuário autenticado.
+  Perfis próprios e visitados também retornam friendCount nos endpoints de perfil.
+}

@@ -1,0 +1,37 @@
+meta {
+  name: Repostar publicação
+  type: http
+  seq: 11
+}
+
+put {
+  url: {{baseUrl}}/posts/{{postId}}/repost
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  const postIdValue = bru.getEnvVar("postId") || bru.getVar("postId");
+  if (!postIdValue) throw new Error("Defina postId no ambiente ou execute a preparação indicada na documentação.");
+  bru.setVar("postId", postIdValue);
+}
+
+script:post-response {
+  if (res.getStatus() >= 200 && res.getStatus() < 300) {
+    const post = res.getBody().data;
+    bru.setVar("postId", post.postId);
+    bru.setVar("lastPost", JSON.stringify(post));
+    bru.deleteVar("postMediaId");
+    const media = (post.media || []).find((item) => item.provider === "UPLOAD");
+    if (media) bru.setVar("postMediaId", media.mediaId);
+  }
+}
+
+docs {
+  Exige login e CSRF. Retorna PostResponse com contadores atualizados.
+  Aparece em PUBLICATIONS no perfil como repost. PUT repetido não duplica o repost nem o aviso.
+}

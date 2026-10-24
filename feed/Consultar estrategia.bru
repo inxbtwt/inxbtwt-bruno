@@ -1,0 +1,26 @@
+meta {
+  name: Consultar feed por estratégia
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/feed?strategy={{feedStrategy}}&page={{feedPage}}&size={{feedSize}}
+  body: none
+  auth: none
+}
+
+params:query {
+  strategy: {{feedStrategy}}
+  page: {{feedPage}}
+  size: {{feedSize}}
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Exige login. feedStrategy escolhe uma estratégia registrada; a atual é chronological.
+  Chave desconhecida e paginação inválida retornam 400. Amizades não aplicam filtro automático.
+}

@@ -1,0 +1,45 @@
+meta {
+  name: Pesquisar perfis por username
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/profiles?query={{profileSearchQuery}}&page={{profileSearchPage}}&size={{profileSearchSize}}
+  body: none
+  auth: none
+}
+
+params:query {
+  query: {{profileSearchQuery}}
+  page: {{profileSearchPage}}
+  size: {{profileSearchSize}}
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  bru.deleteVar("lastProfileSearch");
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    bru.setVar("lastProfileSearch", JSON.stringify(res.getBody().data));
+  }
+}
+
+docs {
+  Exige login pelo Cookie Jar. Pesquisa somente username, por qualquer trecho e sem diferenciar maiúsculas.
+  Configure profileSearchQuery, profileSearchPage (a partir de zero) e profileSearchSize (1 a 100) no ambiente.
+  O termo deve ter de 1 a 255 caracteres; espaços nas extremidades são removidos e termos em branco são rejeitados.
+  Os caracteres %, _ e barra invertida são tratados literalmente, sem funcionar como curingas.
+  Exemplo: luc encontra lucas123. lucs não encontra lucas por aproximação e o nome Lucas ainda não participa da busca.
+  O usuário autenticado nunca aparece na pesquisa, mesmo pesquisando seu username completo.
+  A exclusão ocorre no banco antes da paginação, mantendo totalElements e totalPages corretos.
+  Retorna data.content com userId, name, username e photoUrl, além dos dados de paginação.
+  Nenhum resultado retorna uma página vazia. O resultado é ordenado por username e userId.
+  Copie um username retornado para profileUsername e execute Visualizar perfil por username.
+  A implementação permite combinar novos critérios futuramente; busca aproximada por nome ainda não está ativa.
+}

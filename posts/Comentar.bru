@@ -1,0 +1,40 @@
+meta {
+  name: Comentar na publicação
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/posts/{{postId}}/comments
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+  Accept: application/json
+}
+
+body:json {
+  {
+    "content": "{{commentContent}}"
+  }
+}
+
+script:pre-request {
+  const postIdValue = bru.getEnvVar("postId") || bru.getVar("postId");
+  if (!postIdValue) throw new Error("Defina postId no ambiente ou execute a preparação indicada na documentação.");
+  bru.setVar("postId", postIdValue);
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    bru.setVar("commentId", res.getBody().data.comment.postId);
+    bru.setVar("lastComment", JSON.stringify(res.getBody().data.comment));
+  }
+}
+
+docs {
+  Exige login e CSRF. Comentário não pode ficar vazio. Notifica o autor do post pai, exceto interações próprias.
+  Retorna data.comment e data.post (pai com os contadores atualizados). Salva commentId sem trocar postId.
+}

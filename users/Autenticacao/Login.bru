@@ -17,14 +17,25 @@ headers {
 
 body:json {
   {
-    "email": "{{loginEmail}}",
+    "identifier": "{{loginValue}}",
     "password": "{{loginPassword}}"
   }
 }
 
+script:pre-request {
+  const identifier = bru.getEnvVar("loginIdentifier") || bru.getVar("loginEmail") || bru.getEnvVar("loginEmail");
+  if (!identifier || !identifier.trim()) {
+    throw new Error("Defina loginIdentifier com o e-mail ou username, ou execute Criar usuário primeiro.");
+  }
+  bru.setVar("loginValue", identifier.trim());
+}
+
 docs {
   Execute Obter CSRF antes do login.
-  O cadastro preenche loginEmail; para uma conta existente, defina loginEmail e loginPassword no ambiente.
+  O campo identifier aceita e-mail ou username sem diferenciar maiúsculas e minúsculas.
+  Defina loginIdentifier e loginPassword no ambiente. loginIdentifier tem precedência sobre loginEmail.
+  Se loginIdentifier estiver vazio, usa loginEmail preenchido pelo cadastro ou pelo ambiente.
+  A API também aceita o campo legado email no JSON para compatibilidade.
   O Cookie Jar recebe __Host-AccessToken e __Secure-RefreshToken automaticamente.
   Os JWTs são HttpOnly, Secure e SameSite=Strict e não aparecem no corpo JSON.
   A resposta ApiResponse contém data.expiresIn, em segundos.

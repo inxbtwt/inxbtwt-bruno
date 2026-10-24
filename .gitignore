@@ -4,3 +4,6 @@
 node_modules/
 *.log
 reports/
+
+# Ambientes pessoais com credenciais locais
+environments/*.local.bru

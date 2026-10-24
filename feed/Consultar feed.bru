@@ -1,0 +1,26 @@
+meta {
+  name: Consultar feed padrão
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/feed?page={{feedPage}}&size={{feedSize}}
+  body: none
+  auth: none
+}
+
+params:query {
+  page: {{feedPage}}
+  size: {{feedSize}}
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Exige login. A estratégia padrão continua cronológica global, incluindo usuários que não são amigos.
+  Retorna strategy, content, page, size, hasNext e hasPrevious. Sem total de páginas.
+  Comentários e publicações removidas não entram no feed.
+}

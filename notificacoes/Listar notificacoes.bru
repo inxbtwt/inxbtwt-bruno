@@ -1,0 +1,36 @@
+meta {
+  name: Listar notificações
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/notifications?page={{notificationPage}}&size={{notificationSize}}
+  body: none
+  auth: none
+}
+
+params:query {
+  page: {{notificationPage}}
+  size: {{notificationSize}}
+}
+
+headers {
+  Accept: application/json
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const items = res.getBody().data.content;
+    bru.setVar("lastNotifications", JSON.stringify(res.getBody().data));
+    bru.deleteVar("notificationId");
+    const selected = items.find((item) => !item.read) || items[0];
+    if (selected) bru.setVar("notificationId", selected.notificationId);
+  }
+}
+
+docs {
+  Exige login. Lista somente os avisos do usuário autenticado, mais recentes primeiro.
+  Salva notificationId do primeiro aviso não lido (ou primeiro item) para uso nas ações manuais.
+  Tipos incluem interações de posts, pedidos e aceites de amizade. Post removido retorna postAvailable=false.
+}

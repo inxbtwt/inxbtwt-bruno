@@ -1,0 +1,27 @@
+meta {
+  name: Recusar solicitação recebida
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/friendships/{{friendUserId}}/decline
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  const target = bru.getEnvVar("friendUserId") || bru.getVar("friendUserId") || bru.getVar("viewedUserId");
+  if (!target) throw new Error("Defina friendUserId ou execute Visualizar perfil por username para selecionar outra pessoa.");
+  bru.setVar("friendUserId", target);
+}
+
+docs {
+  Exige login e CSRF.
+  Somente o destinatário recusa. Retorna NONE, sem enviar aviso de recusa.
+  Ação da parte errada retorna 403; estado incompatível retorna 409.
+}

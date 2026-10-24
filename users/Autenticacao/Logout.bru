@@ -18,7 +18,7 @@ settings {
 
 script:post-response {
   if (res.getStatus() === 200 || res.getStatus() === 204) {
-    for (const name of ["userId", "lastUser", "profileId", "lastProfile", "photoUrl", "photoKey", "coverUrl", "coverKey"]) {
+    for (const name of ["userId", "lastUser", "profileId", "lastProfile", "photoUrl", "photoKey", "coverUrl", "coverKey", "viewedUserId", "viewedPhotoUrl", "viewedCoverUrl", "lastViewedProfile", "lastProfileSearch", "encodedProfileUsername", "friendCount", "viewedFriendCount", "postId", "postMediaId", "postAuthorId", "lastPost", "commentId", "lastComment", "notificationId", "lastNotifications", "friendUserId"]) {
       bru.deleteVar(name);
     }
   }

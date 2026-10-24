@@ -1,0 +1,26 @@
+meta {
+  name: Listar solicitações enviadas
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/friendships/requests?direction=SENT&page={{friendPage}}&size={{friendSize}}
+  body: none
+  auth: none
+}
+
+params:query {
+  direction: SENT
+  page: {{friendPage}}
+  size: {{friendSize}}
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Exige login. Lista apenas os pedidos pendentes enviados pelo usuário autenticado.
+  Use o UUID da outra pessoa em friendUserId para cancelar.
+}

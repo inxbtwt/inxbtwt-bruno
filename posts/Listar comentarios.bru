@@ -1,0 +1,31 @@
+meta {
+  name: Listar comentários
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/posts/{{postId}}/comments?page={{postPage}}&size={{postSize}}
+  body: none
+  auth: none
+}
+
+params:query {
+  page: {{postPage}}
+  size: {{postSize}}
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  const postIdValue = bru.getEnvVar("postId") || bru.getVar("postId");
+  if (!postIdValue) throw new Error("Defina postId no ambiente ou execute a preparação indicada na documentação.");
+  bru.setVar("postId", postIdValue);
+}
+
+docs {
+  Exige login. Lista comentários do mais recente para o mais antigo, com paginação a partir de zero.
+  Comentários também possuem postId e podem receber respostas usando Comentar.
+}

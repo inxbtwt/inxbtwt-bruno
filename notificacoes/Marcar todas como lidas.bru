@@ -1,0 +1,20 @@
+meta {
+  name: Marcar todas as notificações como lidas
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/notifications/read-all
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Exige login e CSRF. Marca apenas as notificações não lidas do usuário autenticado.
+  Não altera os avisos de outras pessoas nem o estado de entrega de e-mails.
+}

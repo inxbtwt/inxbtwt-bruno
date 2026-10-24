@@ -1,0 +1,26 @@
+meta {
+  name: Desfazer amizade
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{baseUrl}}/friendships/{{friendUserId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  const target = bru.getEnvVar("friendUserId") || bru.getVar("friendUserId") || bru.getVar("viewedUserId");
+  if (!target) throw new Error("Defina friendUserId ou execute Visualizar perfil por username para selecionar outra pessoa.");
+  bru.setVar("friendUserId", target);
+}
+
+docs {
+  Exige login e CSRF. Qualquer um dos dois amigos pode desfazer a amizade.
+  Altera uma relação aceita para NONE e permite um novo pedido. Não filtra nem altera o feed.
+}

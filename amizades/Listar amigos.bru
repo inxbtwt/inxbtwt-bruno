@@ -1,0 +1,25 @@
+meta {
+  name: Listar amigos aceitos
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/friendships?page={{friendPage}}&size={{friendSize}}
+  body: none
+  auth: none
+}
+
+params:query {
+  page: {{friendPage}}
+  size: {{friendSize}}
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Exige login. Lista amizades aceitas do usuário autenticado por data de aceite decrescente.
+  Não inclui solicitações pendentes nem relações desfeitas.
+}

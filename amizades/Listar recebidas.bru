@@ -1,0 +1,26 @@
+meta {
+  name: Listar solicitações recebidas
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/friendships/requests?direction=RECEIVED&page={{friendPage}}&size={{friendSize}}
+  body: none
+  auth: none
+}
+
+params:query {
+  direction: RECEIVED
+  page: {{friendPage}}
+  size: {{friendSize}}
+}
+
+headers {
+  Accept: application/json
+}
+
+docs {
+  Exige login. Lista apenas os pedidos pendentes recebidos pelo usuário autenticado.
+  Use o UUID de data.content[].user.userId em friendUserId para aceitar ou recusar.
+}

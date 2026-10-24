@@ -18,6 +18,7 @@ script:post-response {
   if (res.getStatus() === 200) {
     const profile = res.getBody().data;
     bru.setVar("lastProfile", JSON.stringify(profile));
+    bru.setVar("friendCount", profile.friendCount);
     if (profile.profileId != null) {
       bru.setVar("profileId", profile.profileId);
     } else {
@@ -27,7 +28,7 @@ script:post-response {
 }
 
 docs {
-  Consulta bio e coverUrl do usuário autenticado pelo Cookie Jar, sem userId na URL.
+  Consulta friendCount (amizades aceitas), bio e coverUrl do usuário autenticado pelo Cookie Jar, sem userId na URL.
   Antes do primeiro salvamento, profileId, bio e coverUrl podem ser null.
   Para enviar a capa, use Fotos > Enviar capa do usuário com type=COVER.
 }

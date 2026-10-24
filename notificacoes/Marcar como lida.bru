@@ -1,0 +1,26 @@
+meta {
+  name: Marcar uma notificação como lida
+  type: http
+  seq: 3
+}
+
+patch {
+  url: {{baseUrl}}/notifications/{{notificationId}}/read
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  const notificationIdValue = bru.getEnvVar("notificationId") || bru.getVar("notificationId");
+  if (!notificationIdValue) throw new Error("Defina notificationId no ambiente ou execute a preparação indicada na documentação.");
+  bru.setVar("notificationId", notificationIdValue);
+}
+
+docs {
+  Exige login e CSRF. Defina notificationId ou execute Listar notificações.
+  Idempotente: preserva a primeira data de leitura. Notificação de outro destinatário retorna 404.
+}

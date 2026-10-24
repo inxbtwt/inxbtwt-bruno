@@ -1,0 +1,27 @@
+meta {
+  name: Cancelar solicitação enviada
+  type: http
+  seq: 7
+}
+
+delete {
+  url: {{baseUrl}}/friendships/{{friendUserId}}/cancel
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  const target = bru.getEnvVar("friendUserId") || bru.getVar("friendUserId") || bru.getVar("viewedUserId");
+  if (!target) throw new Error("Defina friendUserId ou execute Visualizar perfil por username para selecionar outra pessoa.");
+  bru.setVar("friendUserId", target);
+}
+
+docs {
+  Exige login e CSRF.
+  Somente o remetente cancela. Retorna NONE e permite um novo pedido.
+  Ação da parte errada retorna 403; estado incompatível retorna 409.
+}

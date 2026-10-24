@@ -1,0 +1,26 @@
+meta {
+  name: Consultar relação com usuário
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/friendships/{{friendUserId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  const target = bru.getEnvVar("friendUserId") || bru.getVar("friendUserId") || bru.getVar("viewedUserId");
+  if (!target) throw new Error("Defina friendUserId ou execute Visualizar perfil por username para selecionar outra pessoa.");
+  bru.setVar("friendUserId", target);
+}
+
+docs {
+  Exige login. Defina friendUserId ou visualize um perfil para preencher viewedUserId.
+  Retorna NONE, REQUEST_SENT, REQUEST_RECEIVED, FRIENDS ou SELF, sempre relativos ao solicitante.
+}

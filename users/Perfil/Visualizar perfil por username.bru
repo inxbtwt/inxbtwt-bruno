@@ -1,0 +1,50 @@
+meta {
+  name: Visualizar perfil por username
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/profiles/username/{{encodedProfileUsername}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  for (const name of ["viewedUserId", "viewedPhotoUrl", "viewedCoverUrl", "lastViewedProfile"]) {
+    bru.deleteVar(name);
+  }
+  const username = bru.getEnvVar("profileUsername");
+  if (!username || !username.trim()) {
+    throw new Error("Defina profileUsername no ambiente com um username retornado pela pesquisa.");
+  }
+  bru.setVar("encodedProfileUsername", encodeURIComponent(username.trim()));
+}
+
+script:post-response {
+  if (res.getStatus() === 200) {
+    const profile = res.getBody().data;
+    bru.setVar("viewedUserId", profile.userId);
+    bru.setVar("viewedFriendCount", profile.friendCount);
+    bru.setVar("lastViewedProfile", JSON.stringify(profile));
+    if (profile.photoUrl) {
+      bru.setVar("viewedPhotoUrl", profile.photoUrl);
+    }
+    if (profile.coverUrl) {
+      bru.setVar("viewedCoverUrl", profile.coverUrl);
+    }
+  }
+}
+
+docs {
+  Exige login. Consulta outro perfil pelo username exato, ignorando maiúsculas e espaços nas extremidades.
+  Configure profileUsername no ambiente, sem o prefixo @.
+  Retorna userId, name, username, bio, photoUrl, coverUrl, createdAt e friendCount, sem dados de contato ou credenciais.
+  Usuários sem ProfileEntity também são retornados, com bio nula; username inexistente retorna HTTP 404.
+  Salva viewedUserId, viewedPhotoUrl e viewedCoverUrl sem alterar userId, lastUser ou as URLs do usuário autenticado.
+  Use as próximas requisições para baixar foto e capa do perfil visualizado.
+}

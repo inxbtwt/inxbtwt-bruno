@@ -1,0 +1,27 @@
+meta {
+  name: Excluir publicação própria
+  type: http
+  seq: 15
+}
+
+delete {
+  url: {{baseUrl}}/posts/{{postId}}
+  body: none
+  auth: none
+}
+
+headers {
+  Accept: application/json
+}
+
+script:pre-request {
+  const postIdValue = bru.getEnvVar("postId") || bru.getVar("postId");
+  if (!postIdValue) throw new Error("Defina postId no ambiente ou execute a preparação indicada na documentação.");
+  bru.setVar("postId", postIdValue);
+}
+
+docs {
+  ATENÇÃO: remove o texto e os anexos do post escolhido; execute manualmente em conteúdo descartável.
+  Exige login, CSRF e autoria. Respostas de outras pessoas são preservadas com contexto Publicação removida.
+  Retorna data.postId e data.parent quando o item removido era um comentário. Posts removidos deixam as listagens.
+}
